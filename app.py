@@ -5,15 +5,19 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from flask import Flask, jsonify, request
-from visualizer import linear_search, bubble_sort, binary_search, nested_loops
+from visualizer import linear_search, bubble_sort, binary_search, nested_loops, nested_loops2, test_stack_operations, test_queue_operations
+ 
 
 app = Flask(__name__)
 
-ALGORITHMS = {
+ALGORITHMS ={
     'linear_search': linear_search,
     'bubble_sort': bubble_sort,
     'binary_search': binary_search,
     'nested_loops': nested_loops,
+    'nested_loops2': nested_loops2,
+    'stack_ops': test_stack_operations,
+    'queue_ops': test_queue_operations
 }
 
 @app.route('/analyze', methods=['GET'])

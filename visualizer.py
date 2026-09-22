@@ -4,6 +4,7 @@ import matplotlib
 matplotlib.use('TKAgg')
 import matplotlib.pyplot as plt
 import random
+from data_structures import Stack, Queue
 
 def time_complexity_visualizer(algorithm, n_min, n_max, step):
     times = []
@@ -71,3 +72,29 @@ def nested_loops(n):
         for j in range(n):
             counter += 1
     return counter
+
+def nested_loops2(n):
+    users = [{'id': i % (n // 2 + 1)} for i in range(n)]
+    seen_ids = set()
+    unique_users = []
+    
+    for user in users:
+        if user['id'] not in seen_ids:
+            seen_ids.add(user['id'])
+            unique_users.append(user)
+            
+    return unique_users
+
+def test_stack_operations(n):
+    s = Stack() # assuming you imported Stack
+    for i in range(n):
+        s.push(i)
+    while not s.is_empty():
+        s.pop()
+
+def test_queue_operations(n):
+    q = Queue() # assuming you imported Queue
+    for i in range(n):
+        q.enqueue(i)
+    while not q.is_empty():
+        q.dequeue()
