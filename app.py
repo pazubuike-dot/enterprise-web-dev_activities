@@ -6,11 +6,17 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
+from flask_jwt_extended import JWTManager, jwt_required, create_access_token
 from visualizer import linear_search, bubble_sort, binary_search, nested_loops, nested_loops2, test_stack_operations, test_queue_operations
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///analysis.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Configure JWT Secret Key
+app.config["JWT_SECRET_KEY"] = "super-secret-jwt-key"  
+jwt = JWTManager(app)
+
 db = SQLAlchemy(app)
 
 class AnalysisRecord(db.Model):
@@ -32,6 +38,12 @@ ALGORITHMS = {
     'stack_ops': test_stack_operations,
     'queue_ops': test_queue_operations
 }
+
+# Helper route to generate a valid JWT token for testing
+@app.route('/api/token', methods=['GET'])
+def get_token():
+    access_token = create_access_token(identity="student_user")
+    return jsonify(access_token=access_token), 200
 
 @app.route('/analyze', methods=['GET'])
 def analyze():
@@ -74,6 +86,7 @@ def analyze():
     })
 
 @app.route('/api/save_analysis', methods=['POST'])
+@jwt_required()  # Automatically validates the Bearer token in the Authorization header
 def save_analysis():
     req_data = request.get_json()
     
@@ -99,6 +112,15 @@ def save_analysis():
         "message": "Analysis data successfully saved to the database via SQLAlchemy!",
         "record_id": new_record.id
     }), 201
+
+# Custom error handlers for missing or malformed JWT tokens
+@jwt.unauthorized_loader
+def missing_token_callback(callback_string):
+    return jsonify({"error": "I don't know you, Bye!"}), 401
+
+@jwt.invalid_token_loader
+def invalid_token_callback(callback_string):
+    return jsonify({"error": "I don't know you, Bye!"}), 401
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000, debug=True)
